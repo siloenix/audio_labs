@@ -1,7 +1,0 @@
-Format chunk size: 16
-Compression code: 1
-Number of channels: 2
-Sample rate: 8000
-Average bytes per second: 32000
-Block align (bytes): 4
-Bits per sample: 16
