@@ -104,6 +104,51 @@ public class WavFile {
         Files.write(new File(path).toPath(), buffer.array(), StandardOpenOption.CREATE);
     }
 
+    public void writeSplitFiles(String pathOne, String pathTwo) throws Exception {
+        int size = data.size();
+        int middle = size / 2;
+        int leftDataSize = middle * blockAlign;
+        int rightDataSize = (size - middle) * blockAlign;
+
+        byte[] leftStartBytes = new byte[44];
+        byte[] rightStartBytes = new byte[44];
+
+        buffer.flip();
+        buffer.position(0); // 12 + 16 + 8
+        buffer.get(leftStartBytes);
+        buffer.position(0); // 12 + 16 + 8
+        buffer.get(rightStartBytes);
+
+        ByteBuffer left = ByteBuffer.allocate(leftDataSize + 44);
+        ByteBuffer right = ByteBuffer.allocate(rightDataSize + 44);
+        left.order(ByteOrder.LITTLE_ENDIAN);
+        right.order(ByteOrder.LITTLE_ENDIAN);
+
+        left.put(leftStartBytes);
+        right.put(rightStartBytes);
+
+        left.position(4);
+        right.position(4);
+        left.putInt(leftDataSize + 36);
+        right.putInt(rightDataSize + 36);
+
+        left.position(40);
+        right.position(40);
+        left.putInt(leftDataSize);
+        right.putInt(rightDataSize);
+
+        left.position(44);
+        right.position(44);
+        for (int i = 0; i < middle; i++) {
+            left.put(data.get(i).bytes());
+        }
+        for (int i = middle; i < size; i++) {
+            right.put(data.get(i).bytes());
+        }
+        Files.write(new File(pathOne).toPath(), left.array(), StandardOpenOption.CREATE);
+        Files.write(new File(pathTwo).toPath(), right.array(), StandardOpenOption.CREATE);
+    }
+
     private void skip(int amount) {
         buffer.position(buffer.position() + amount);
     }

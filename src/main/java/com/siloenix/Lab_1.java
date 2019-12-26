@@ -6,7 +6,7 @@ import com.siloenix.wav.WavFile;
 
 public class Lab_1 {
     public static void main(String[] args) throws Exception {
-        WavFile wav = WavFile.readFile("./wav_file.wav");
+        WavFile wav = WavFile.readFile("./thermo.wav");
         wav.process(data -> {
             int amount = data.size();
             int back = amount - 1;
@@ -18,6 +18,7 @@ public class Lab_1 {
             }
         });
         wav.writeFile("./test.wav");
+        wav.writeSplitFiles("./test_1.wav", "./test_2.wav");
     }
 }
 
