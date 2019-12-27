@@ -154,11 +154,35 @@ public class WavFile {
     }
 
     public static void main(String[] args) throws IOException {
-        WavFile file = new WavFile(new File("./wav_file.wav"));
+        WavFile file = new WavFile(new File("./thermo.wav"));
         file.readFile();
         file.parseFormat();
         file.parseData();
 
         file.printFormat();
+    }
+
+    public void splitChunksToFiles() throws Exception {
+        buffer.rewind();
+        List<ByteBuffer> chunks = new ArrayList<>();
+
+        skip(12);
+        do {
+            long type = buffer.getInt();
+            long size = buffer.getInt();
+            byte[] bytes = new byte[(int) size];
+            ByteBuffer chunk = ByteBuffer.allocate((int) (size + 8));
+            chunk.order(ByteOrder.LITTLE_ENDIAN);
+            buffer.get(bytes);
+            chunk.putInt((int) type);
+            chunk.putInt((int) size);
+            chunk.put(bytes);
+            chunks.add(chunk);
+        } while (buffer.hasRemaining());
+
+        for (int i = 0; i < chunks.size(); i++) {
+            Files.write(new File("chunk_" + i + ".txt").toPath(), chunks.get(i).array(), StandardOpenOption.CREATE);
+        }
+
     }
 }
